@@ -1,0 +1,21 @@
+
+
+Here are some notes regarding processing NMR spectra: 
+
+1) Window Functions
+	- Generally use the SP function but use GM if you intend to fit 
+	  the spectrum with FUDA. This is because the form FUDA uses to 
+	  fit functions is a mix of a Gaussian and a Lorentzian function. 
+
+	- The -c flag should be 0.5 or 1.0. It is usually 0.5 and 1. if the 
+	  phase correction is 0. or 1. 
+
+2) Linear Prediction 
+
+   - This shouldn't be more than 1/3 of the points in the dimension 
+     you are looking at. 
+
+   - It also depends on how many signals you wish to reconstruct along 
+     a given 1D. Having to many risks introducing peaks and too few risks loosing 
+     peaks. 
+    
