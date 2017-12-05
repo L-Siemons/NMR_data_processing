@@ -65,19 +65,21 @@ xyz2pipe -in fid/test%03d.fid -x -verb                        \
 # third dim so that we can apply LP                           \
 # hence we use the hilbert transform to regenerate the        \
 # imaginary part                                              \
-xyz2pipe -in ft/test%03d.ft2 -verb                        \
+xyz2pipe -in ft/test%03d.ft2 -verb                            \
  | nmrPipe -fn ZTP                                            \
  | nmrPipe -fn HT -auto                                       \
  | nmrPipe -fn PS -p0 $phZ0 -p1 $phZ1 -inv                    \
  | nmrPipe -fn FT -alt -inv                                   \
  | nmrPipe -fn ZF -zf 1 -inv                                  \
- | nmrPipe -fn EM -lb 0.5 -c 0.5 -inv \
+ | nmrPipe -fn EM -lb 0.5 -c 0.5 -inv                         \
  | nmrPipe -fn LP -ord 15 -fb -verb                           \
 # Normal processing of Z (Z:  aliphatic H )                   \
  | nmrPipe -fn SP -off 0.5  -end 0.98 -pow 2 -c .5            \
  | nmrPipe -fn ZF -auto                                       \
  | nmrPipe -fn FT -alt                                        \
  | nmrPipe -fn PS -p0 $phZ0 -p1 $phZ1 -di                     \
+# next two lines swap dimensions 2 and 3                      \
+ | nmrPipe -fn TP                                             \
  | nmrPipe -fn ZTP                                            \
  | pipe2xyz -out ft/test%03d.ft3 
 
