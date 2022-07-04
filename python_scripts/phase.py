@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import nmrglue as ng
 import matplotlib
 import numpy as np
+from scipy.signal import hilbert
 from matplotlib.widgets import Slider, Button
 
 # plot parameters these should be changed by the user if needed
@@ -27,6 +28,8 @@ yp1_val = None
 cl = contour_start * contour_factor ** np.arange(contour_num)
 # read in the data from a NMRPipe file
 dic, data = ng.pipe.read(spectrum)
+#data = hilbert(data)
+
 
 def onclick(event):
 
@@ -49,30 +52,18 @@ def onclick(event):
 
 def update(val):
 
-    # pivot = 0
-    # xslice = data[dim_uc[0](f'{iy} ppm'), :]
-    # xslice = ng.process.proc_base.add_ri(3)
-    # new_xslice = xslice * np.exp(
-    #             1.0j * ((x_p0_slider.val * np.pi / 180) + ((x_p1_slider.val* np.pi / 180 )* np.arange(-pivot, -pivot + xslice.size) /
-    #                     xslice.size))).astype(xslice.dtype).real
 
-
-    xslice = ng.process.proc_base.add_ri(xslice)
-    xslice  = ng.process.proc_base.irtf(xslice)
-    new_xslice = (xslice * np.exp(
-                1.0j * ((x_p0_slider.val * np.pi / 180) + ((x_p1_slider.val* np.pi / 180 )* np.arange(-pivot, -pivot + xslice.size) /
-                        xslice.size))).astype(xslice.dtype)).real
-    new_xslice = ng.process.proc_base.rft(new_xslice)
-    xslice = ng.process.proc_base.irft(xslice)
+    xslice = data[dim_uc[0](f'{iy} ppm'), :]
+    xslice = hilbert(xslice)
     di, xslice = ng.pipe_proc.ps(dic, xslice, p0=x_p0_slider.val, p1=x_p1_slider.val)
-    xslice = ng.process.proc_base.rft(xslice)
-    xslice = ng.process.proc_base.di(xslice)
-
-    plot_xslice.set_ydata(new_xslice / x_intensity.val+iy)
+    plot_xslice.set_ydata(-xslice / x_intensity.val+ iy)
 
     yslice = data[:,dim_uc[1](f'{ix} ppm')]
-    plot_yslice.set_xdata(-yslice / y_intensity.val+ix)
+    yslice = hilbert(yslice)
+    di, yslice = ng.pipe_proc.ps(dic, yslice, p0=y_p0_slider.val, p1=y_p1_slider.val)
+    plot_yslice.set_xdata( -yslice / y_intensity.val + ix)
     fig.canvas.draw_idle()
+
 
 # make ppm scales
 dim_uc = {}
@@ -165,6 +156,8 @@ x_intensity.on_changed(update)
 y_intensity.on_changed(update)
 x_p0_slider.on_changed(update)
 x_p1_slider.on_changed(update)
+y_p0_slider.on_changed(update)
+y_p1_slider.on_changed(update)
 
 cid = fig.canvas.mpl_connect('button_press_event', onclick)
 plt.xlabel('1H (ppm)')
